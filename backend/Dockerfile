@@ -17,7 +17,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests -B
 
 # 运行阶段
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:21-jdk-alpine-3.23
 
 # 设置工作目录
 WORKDIR /app
