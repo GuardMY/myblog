@@ -7,9 +7,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.security.config.Customizer;
 
 @Configuration
 @EnableWebSecurity
@@ -18,7 +22,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12); // 增强密码加密强度
     }
 
     @Bean
@@ -27,9 +31,16 @@ public class SecurityConfig {
     }
 
     @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/auth/**") // 只对认证路径禁用CSRF
+            )
             .authorizeRequests(authorize -> authorize
                 .requestMatchers("/api/auth/**", "/api/blogs/**", "/api/comments/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -41,6 +52,22 @@ public class SecurityConfig {
             )
             .logout(logout -> logout
                 .permitAll()
+            )
+            .sessionManagement(session -> session
+                .maximumSessions(1) // 每个用户最多一个会话
+                .expiredUrl("/api/auth/login?expired=true")
+            )
+            .headers(headers -> headers
+                .contentTypeOptions(Customizer.withDefaults())
+                .xssProtection(xss -> xss
+                    .headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
+                )
+                .cacheControl(cache -> cache.disable())
+                .httpStrictTransportSecurity(hsts -> hsts
+                    .includeSubDomains(true)
+                    .preload(true)
+                    .maxAgeInSeconds(31536000) // 1年
+                )
             );
 
         return http.build();

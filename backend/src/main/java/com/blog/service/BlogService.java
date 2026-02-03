@@ -68,6 +68,28 @@ public class BlogService {
         return blogRepository.findByStatusOrderByPublishedAtDesc("PUBLISHED", pageable);
     }
 
+    // 按分类查询
+    @Cacheable(value = "blogs", key = "'byCategory_' + #categoryId")
+    public List<Blog> findByCategory(Long categoryId) {
+        return blogRepository.findByCategoryIdAndStatusOrderByPublishedAtDesc(categoryId, "PUBLISHED");
+    }
+
+    @Cacheable(value = "blogs", key = "'byCategory_' + #categoryId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
+    public Page<Blog> findByCategory(Long categoryId, Pageable pageable) {
+        return blogRepository.findByCategoryIdAndStatusOrderByPublishedAtDesc(categoryId, "PUBLISHED", pageable);
+    }
+
+    // 按标签查询
+    @Cacheable(value = "blogs", key = "'byTag_' + #tagId")
+    public List<Blog> findByTag(Long tagId) {
+        return blogRepository.findByTagIdAndStatusPublished(tagId);
+    }
+
+    @Cacheable(value = "blogs", key = "'byTag_' + #tagId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
+    public Page<Blog> findByTag(Long tagId, Pageable pageable) {
+        return blogRepository.findByTagIdAndStatusPublished(tagId, pageable);
+    }
+
     public List<Blog> findByAuthor(User author) {
         return blogRepository.findByAuthorIdOrderByCreatedAtDesc(author.getId());
     }

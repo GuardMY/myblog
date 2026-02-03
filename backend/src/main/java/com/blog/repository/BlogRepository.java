@@ -17,6 +17,17 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
     List<Blog> findByTitleContainingOrContentContainingOrderByPublishedAtDesc(String title, String content);
     Page<Blog> findByTitleContainingOrContentContainingOrderByPublishedAtDesc(String title, String content, Pageable pageable);
 
+    // 按分类查询
+    List<Blog> findByCategoryIdAndStatusOrderByPublishedAtDesc(Long categoryId, String status);
+    Page<Blog> findByCategoryIdAndStatusOrderByPublishedAtDesc(Long categoryId, String status, Pageable pageable);
+
+    // 按标签查询
+    @Query("SELECT b FROM Blog b JOIN b.tags t WHERE t.id = :tagId AND b.status = 'PUBLISHED' ORDER BY b.publishedAt DESC")
+    List<Blog> findByTagIdAndStatusPublished(@Param("tagId") Long tagId);
+
+    @Query("SELECT b FROM Blog b JOIN b.tags t WHERE t.id = :tagId AND b.status = 'PUBLISHED' ORDER BY b.publishedAt DESC")
+    Page<Blog> findByTagIdAndStatusPublished(@Param("tagId") Long tagId, Pageable pageable);
+
     @Query("SELECT b FROM Blog b WHERE b.status = 'PUBLISHED' AND (b.title LIKE %:keyword% OR b.content LIKE %:keyword%) ORDER BY b.publishedAt DESC")
     List<Blog> searchPublishedBlogs(@Param("keyword") String keyword);
 

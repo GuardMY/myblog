@@ -33,6 +33,18 @@ public class Blog {
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @ManyToMany
+    @JoinTable(
+        name = "blog_tags",
+        joinColumns = @JoinColumn(name = "blog_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags;
+
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comment> comments;
 

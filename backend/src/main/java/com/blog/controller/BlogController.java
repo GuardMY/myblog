@@ -120,6 +120,28 @@ public class BlogController {
         return new ResponseEntity<>(blogs, HttpStatus.OK);
     }
 
+    // 按分类查询博客
+    @GetMapping("/category/{id}")
+    public ResponseEntity<?> getBlogsByCategory(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Blog> blogs = blogService.findByCategory(id, pageable);
+        return new ResponseEntity<>(blogs, HttpStatus.OK);
+    }
+
+    // 按标签查询博客
+    @GetMapping("/tag/{id}")
+    public ResponseEntity<?> getBlogsByTag(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Blog> blogs = blogService.findByTag(id, pageable);
+        return new ResponseEntity<>(blogs, HttpStatus.OK);
+    }
+
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
