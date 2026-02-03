@@ -35,14 +35,14 @@ services:
       db:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/blog?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: bloguser
-      SPRING_DATASOURCE_PASSWORD: blogpass123
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_SHOW_SQL: false
-      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
-      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 100MB
-      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 100MB
+      SPRING_DATASOURCE_URL: "jdbc:mysql://db:3306/blog?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+      SPRING_DATASOURCE_USERNAME: "bloguser"
+      SPRING_DATASOURCE_PASSWORD: "blogpass123"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+      SPRING_JPA_SHOW_SQL: "false"
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: "org.hibernate.dialect.MySQL8Dialect"
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "100MB"
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "100MB"
     ports:
       - "8080:8080"
     volumes:
