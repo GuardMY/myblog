@@ -6,7 +6,7 @@ WORKDIR /app
 
 # 复制pom.xml和Maven设置文件
 COPY pom.xml .
-COPY settings.xml /root/.m2/settings.xml
+# COPY settings.xml /root/.m2/settings.xml
 
 # 下载依赖
 # RUN mvn dependency:go-offline -B
