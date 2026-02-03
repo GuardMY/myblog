@@ -1,0 +1,82 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE generated files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Build tools
+/target/
+build/
+out/
+
+# Maven
+.mvn/
+*.pom.sha1
+*.pom.tmp
+*.jar.sha1
+*.jar.tmp
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE specific files
+*.iml
+*.ipr
+*.iws
+
+# Coverage reports
+coverage/
+*.lcov
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files
+*.backup
+*.bak
+
+# Compiled class file
+*.class
+
+# Package files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Dependency directories
+lib/
+lib64/
+
+# Docker
+.dockerignore
+
+# Serverless directories
+.serverless/
