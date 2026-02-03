@@ -1,8 +1,5 @@
 # 构建阶段
-FROM eclipse-temurin:21-jdk-alpine-3.23 as build
-
-# 安装Maven
-RUN apk add --no-cache maven
+FROM maven:3.9.12-amazoncorretto-17-alpine AS build
 
 # 设置工作目录
 WORKDIR /app
@@ -11,16 +8,16 @@ WORKDIR /app
 COPY pom.xml .
 
 # 下载依赖
-RUN mvn dependency:go-offline
+RUN mvn dependency:go-offline -B
 
 # 复制源代码
 COPY src ./src
 
 # 构建项目
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -B
 
 # 运行阶段
-FROM eclipse-temurin:21-jdk-alpine-3.23
+FROM eclipse-temurin:21-jdk-alpine
 
 # 设置工作目录
 WORKDIR /app
