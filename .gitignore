@@ -15,7 +15,7 @@ Thumbs.db
 *~
 
 # Build tools
-/target/
+*/target/*
 build/
 out/
 
