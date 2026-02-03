@@ -9,7 +9,7 @@ COPY pom.xml .
 COPY settings.xml /root/.m2/settings.xml
 
 # 下载依赖
-RUN mvn dependency:go-offline -B
+# RUN mvn dependency:go-offline -B
 
 # 复制源代码
 COPY src ./src
