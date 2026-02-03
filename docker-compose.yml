@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # 数据库服务
   db:
-    image: mysql:8.0
+    image: mysql:8.0.45-bookworm
     container_name: blog-db
     restart: unless-stopped
     environment:
