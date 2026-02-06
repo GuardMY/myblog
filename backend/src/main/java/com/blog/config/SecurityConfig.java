@@ -42,7 +42,8 @@ public class SecurityConfig {
                 .ignoringRequestMatchers("/api/auth/**") // 只对认证路径禁用CSRF
             )
             .authorizeRequests(authorize -> authorize
-                .requestMatchers("/api/auth/**", "/api/blogs/**", "/api/comments/**").permitAll()
+                .requestMatchers("/api/auth/**", "/api/blogs/**", "/api/comments/**", "/api/categories/**", "/api/tags/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )

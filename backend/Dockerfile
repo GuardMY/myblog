@@ -1,5 +1,5 @@
 # 构建阶段
-FROM maven:3.9.12-amazoncorretto-17-alpine AS build
+FROM maven:3.9.12-amazoncorretto-21-alpine AS build
 
 # 设置工作目录
 WORKDIR /app
