@@ -29,6 +29,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      cache_from:
+        - blog-backend:buildcache
     container_name: blog-backend
     restart: unless-stopped
     depends_on:
@@ -47,6 +49,7 @@ services:
       - "8080:8080"
     volumes:
       - backend-uploads:/app/uploads
+      - "~/.m2:/root/.m2:delegated"  # 挂载Maven本地仓库
     networks:
       - blog-network
     healthcheck:
