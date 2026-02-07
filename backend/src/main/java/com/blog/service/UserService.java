@@ -1,49 +1,71 @@
 package com.blog.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.blog.dao.mapper.UserMapper;
 import com.blog.entity.User;
-import com.blog.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
+    @Resource
+    private UserMapper userMapper;
 
-    @Autowired
+    @Resource
     private PasswordEncoder passwordEncoder;
 
     public User register(User user) {
-        if (userRepository.existsByUsername(user.getUsername())) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", user.getUsername());
+        if (userMapper.selectCount(queryWrapper) > 0) {
             throw new RuntimeException("Username already exists");
         }
-        if (userRepository.existsByEmail(user.getEmail())) {
+        queryWrapper.clear();
+        queryWrapper.eq("email", user.getEmail());
+        if (userMapper.selectCount(queryWrapper) > 0) {
             throw new RuntimeException("Email already exists");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        userMapper.insert(user);
+        return user;
     }
 
     public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        User user = userMapper.selectOne(queryWrapper);
+        return Optional.ofNullable(user);
     }
 
     public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("email", email);
+        User user = userMapper.selectOne(queryWrapper);
+        return Optional.ofNullable(user);
     }
 
     public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userMapper.selectById(id);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        return user;
     }
 
     public User update(User user) {
-        return userRepository.save(user);
+        userMapper.updateById(user);
+        return user;
     }
 
     public void delete(Long id) {
-        userRepository.deleteById(id);
+        userMapper.deleteById(id);
+    }
+
+    public List<User> findAll() {
+        return userMapper.selectList(null);
     }
 }

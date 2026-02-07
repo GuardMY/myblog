@@ -1,43 +1,29 @@
 package com.blog.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "users")
+@TableName(value = "users")
 @Data
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String role = "USER";
 
     private String avatar;
 
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
+    
+    @TableField(fill = FieldFill.UPDATE)
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

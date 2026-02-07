@@ -1,25 +1,20 @@
 package com.blog.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-@Entity
-@Table(name = "categories")
+@TableName(value = "categories")
 public class Category {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false)
     private String description;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Blog> blogs;
 }

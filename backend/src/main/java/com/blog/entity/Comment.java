@@ -1,40 +1,27 @@
 package com.blog.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "comments")
+@TableName(value = "comments")
 @Data
 public class Comment {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    private Long userId;
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "blog_id", nullable = false)
+    private Long blogId;
     private Blog blog;
 
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
+    
+    @TableField(fill = FieldFill.UPDATE)
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

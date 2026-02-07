@@ -4,7 +4,7 @@ import com.blog.entity.Comment;
 import com.blog.entity.User;
 import com.blog.service.CommentService;
 import com.blog.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,10 +16,10 @@ import java.util.List;
 @RequestMapping("/api/comments")
 public class CommentController {
 
-    @Autowired
+    @Resource
     private CommentService commentService;
 
-    @Autowired
+    @Resource
     private UserService userService;
 
     @PostMapping

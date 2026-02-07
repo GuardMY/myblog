@@ -1,7 +1,7 @@
 <template>
   <div class="app">
-    <!-- 导航栏 -->
-    <nav class="navbar">
+    <!-- 导航栏 - 登录和注册页面不显示 -->
+    <nav v-if="!isAuthPage" class="navbar">
       <div class="container">
         <div class="navbar-brand">
           <router-link to="/">个人博客</router-link>
@@ -13,21 +13,18 @@
             <router-link to="/admin" class="nav-link">后台管理</router-link>
             <button @click="handleLogout" class="logout-btn">退出登录</button>
           </div>
-          <div v-else class="auth-menu">
-            <router-link to="/login" class="nav-link">登录</router-link>
-            <router-link to="/register" class="nav-link">注册</router-link>
-          </div>
+          <!-- 移除未登录用户的登录/注册导航链接，只能通过直接访问 -->
         </div>
       </div>
     </nav>
 
     <!-- 主内容区域 -->
-    <main class="main-content">
+    <main class="main-content" :class="{ 'auth-page': isAuthPage }">
       <router-view />
     </main>
 
-    <!-- 页脚 -->
-    <footer class="footer">
+    <!-- 页脚 - 登录和注册页面不显示 -->
+    <footer v-if="!isAuthPage" class="footer">
       <div class="container">
         <p>&copy; {{ new Date().getFullYear() }} 个人博客. 保留所有权利.</p>
       </div>
@@ -41,7 +38,14 @@ export default {
   data() {
     return {
       isLoggedIn: false,
-      username: ''
+      username: '',
+      userRole: ''
+    }
+  },
+  computed: {
+    isAuthPage() {
+      const authRoutes = ['Login', 'Register']
+      return authRoutes.includes(this.$route.name)
     }
   },
   mounted() {
@@ -50,18 +54,23 @@ export default {
   methods: {
     checkLoginStatus() {
       const user = localStorage.getItem('user')
+      const role = localStorage.getItem('userRole')
       if (user) {
         this.isLoggedIn = true
         this.username = user
+        this.userRole = role
       } else {
         this.isLoggedIn = false
         this.username = ''
+        this.userRole = ''
       }
     },
     handleLogout() {
       localStorage.removeItem('user')
+      localStorage.removeItem('userRole')
       this.isLoggedIn = false
       this.username = ''
+      this.userRole = ''
       this.$router.push('/')
     }
   },
@@ -169,6 +178,13 @@ body {
 /* 主内容区域 */
 .main-content {
   min-height: calc(100vh - 120px);
+}
+
+/* 认证页面样式 - 全屏显示 */
+.auth-page {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 /* 页脚样式 */

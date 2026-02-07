@@ -2,7 +2,7 @@ package com.blog.controller;
 
 import com.blog.entity.Tag;
 import com.blog.service.TagService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping("/api/tags")
 public class TagController {
 
-    @Autowired
+    @Resource
     private TagService tagService;
 
     @GetMapping

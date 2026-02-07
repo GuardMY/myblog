@@ -46,10 +46,13 @@ const routes = [
         component: () => import('../views/admin/EditBlog.vue')
       },
       {
-        path: 'users',
-        name: 'AdminUsers',
-        component: () => import('../views/admin/AdminUsers.vue')
+      path: 'users',
+      name: 'AdminUsers',
+      component: () => import('../views/admin/AdminUsers.vue'),
+      meta: {
+        requiresAdmin: true
       }
+    }
     ]
   }
 ]
@@ -59,13 +62,24 @@ const router = createRouter({
   routes
 })
 
-// 路由守卫，检查登录状态
+// 路由守卫，检查登录状态和管理员权限
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
   const isLoggedIn = localStorage.getItem('token') || localStorage.getItem('user')
+  const userRole = localStorage.getItem('userRole')
 
-  if (requiresAuth && !isLoggedIn) {
+  // 已登录用户不能访问登录和注册页面
+  if ((to.name === 'Login' || to.name === 'Register') && isLoggedIn) {
+    next('/')
+  }
+  // 未登录用户访问需要认证的页面时重定向到登录
+  else if (requiresAuth && !isLoggedIn) {
     next('/login')
+  }
+  // 需要管理员权限的页面，检查用户是否为管理员
+  else if (requiresAdmin && (userRole !== 'ADMIN')) {
+    next('/')
   } else {
     next()
   }

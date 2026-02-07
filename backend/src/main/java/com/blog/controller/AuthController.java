@@ -2,7 +2,7 @@ package com.blog.controller;
 
 import com.blog.entity.User;
 import com.blog.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,10 +17,10 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
+    @Resource
     private AuthenticationManager authenticationManager;
 
-    @Autowired
+    @Resource
     private UserService userService;
 
     @PostMapping("/register")
@@ -39,12 +39,15 @@ public class AuthController {
         String password = credentials.get("password");
 
         try {
+            System.out.println("Login attempt for username: " + username);
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
+                    new UsernamePasswordAuthenticationToken(username, password)
             );
+            System.out.println("Authentication successful for: " + authentication.getName());
             SecurityContextHolder.getContext().setAuthentication(authentication);
             return new ResponseEntity<>(Map.of("message", "Login successful", "user", username), HttpStatus.OK);
         } catch (Exception e) {
+            System.out.println("Login failed for username: " + username + ", error: " + e.getMessage());
             return new ResponseEntity<>(Map.of("error", "Invalid credentials"), HttpStatus.UNAUTHORIZED);
         }
     }
@@ -57,10 +60,20 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
-        if (authentication == null) {
+        // 尝试从SecurityContext获取认证信息
+        Authentication auth = authentication;
+        if (auth == null) {
+            auth = SecurityContextHolder.getContext().getAuthentication();
+        }
+
+        if (auth == null || auth.getPrincipal() == null || auth.getName().equals("anonymousUser")) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        User user = userService.findByUsername(authentication.getName()).orElseThrow();
+
+        String username = auth.getName();
+        System.out.println("Getting user for username: " + username);
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }

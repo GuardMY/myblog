@@ -1,13 +1,11 @@
 package com.blog.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.blog.entity.Blog;
 import com.blog.entity.User;
 import com.blog.service.BlogService;
 import com.blog.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,10 +19,10 @@ import java.util.List;
 @RequestMapping("/api/blogs")
 public class BlogController {
 
-    @Autowired
+    @Resource
     private BlogService blogService;
 
-    @Autowired
+    @Resource
     private UserService userService;
 
     @PostMapping
@@ -73,24 +71,22 @@ public class BlogController {
 
     @GetMapping
     public ResponseEntity<?> getAllPublishedBlogs(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Blog> blogs = blogService.findAllPublished(pageable);
+        IPage<Blog> blogs = blogService.findAllPublished(page, size);
         return new ResponseEntity<>(blogs, HttpStatus.OK);
     }
 
     @GetMapping("/my/blogs")
     public ResponseEntity<?> getMyBlogs(
             Authentication authentication,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         if (authentication == null) {
             return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
         User user = userService.findByUsername(authentication.getName()).orElseThrow();
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Blog> blogs = blogService.findByAuthor(user, pageable);
+        IPage<Blog> blogs = blogService.findByAuthor(user, page, size);
         return new ResponseEntity<>(blogs, HttpStatus.OK);
     }
 
@@ -124,10 +120,9 @@ public class BlogController {
     @GetMapping("/category/{id}")
     public ResponseEntity<?> getBlogsByCategory(
             @PathVariable Long id,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Blog> blogs = blogService.findByCategory(id, pageable);
+        IPage<Blog> blogs = blogService.findByCategory(id, page, size);
         return new ResponseEntity<>(blogs, HttpStatus.OK);
     }
 
@@ -135,10 +130,9 @@ public class BlogController {
     @GetMapping("/tag/{id}")
     public ResponseEntity<?> getBlogsByTag(
             @PathVariable Long id,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Blog> blogs = blogService.findByTag(id, pageable);
+        IPage<Blog> blogs = blogService.findByTag(id, page, size);
         return new ResponseEntity<>(blogs, HttpStatus.OK);
     }
 

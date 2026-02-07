@@ -46,14 +46,25 @@ export default {
       this.error = ''
 
       try {
-        const response = await axios.post('http://localhost:8080/api/auth/login', {
+        // 登录请求，携带cookies
+        const loginResponse = await axios.post('http://localhost:8080/api/auth/login', {
           username: this.username,
           password: this.password
+        }, {
+          withCredentials: true
         })
 
-        if (response.status === 200) {
-          localStorage.setItem('user', this.username)
-          this.$router.push('/')
+        if (loginResponse.status === 200) {
+          // 登录成功后获取用户完整信息（包含角色），携带cookies
+          const userInfoResponse = await axios.get('http://localhost:8080/api/auth/me', {
+            withCredentials: true
+          })
+          if (userInfoResponse.status === 200) {
+            const userInfo = userInfoResponse.data
+            localStorage.setItem('user', userInfo.username)
+            localStorage.setItem('userRole', userInfo.role)
+            this.$router.push('/')
+          }
         }
       } catch (error) {
         if (error.response && error.response.data && error.response.data.error) {

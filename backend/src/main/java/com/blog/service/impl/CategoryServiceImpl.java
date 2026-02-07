@@ -1,9 +1,9 @@
 package com.blog.service.impl;
 
+import com.blog.dao.CategoryDao;
 import com.blog.entity.Category;
-import com.blog.repository.CategoryRepository;
 import com.blog.service.CategoryService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,34 +11,43 @@ import java.util.List;
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+    @Resource
+    private CategoryDao categoryDao;
 
     @Override
     public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+        return categoryDao.list();
     }
 
     @Override
     public Category getCategoryById(Long id) {
-        return categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+        Category category = categoryDao.getById(id);
+        if (category == null) {
+            throw new RuntimeException("Category not found");
+        }
+        return category;
     }
 
     @Override
     public Category createCategory(Category category) {
-        return categoryRepository.save(category);
+        categoryDao.save(category);
+        return category;
     }
 
     @Override
     public Category updateCategory(Long id, Category category) {
-        Category existingCategory = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+        Category existingCategory = categoryDao.getById(id);
+        if (existingCategory == null) {
+            throw new RuntimeException("Category not found");
+        }
         existingCategory.setName(category.getName());
         existingCategory.setDescription(category.getDescription());
-        return categoryRepository.save(existingCategory);
+        categoryDao.updateById(existingCategory);
+        return existingCategory;
     }
 
     @Override
     public void deleteCategory(Long id) {
-        categoryRepository.deleteById(id);
+        categoryDao.removeById(id);
     }
 }

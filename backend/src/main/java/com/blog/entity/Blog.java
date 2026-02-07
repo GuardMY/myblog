@@ -1,26 +1,21 @@
 package com.blog.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Table(name = "blogs")
+@TableName(value = "blogs")
 @Data
 public class Blog {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(nullable = false)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column(columnDefinition = "TEXT")
     private String markdownContent;
 
     private String featuredImage;
@@ -29,37 +24,20 @@ public class Blog {
 
     private Integer viewCount = 0;
 
-    @ManyToOne
-    @JoinColumn(name = "author_id", nullable = false)
+    private Long authorId;
     private User author;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
+    private Long categoryId;
     private Category category;
 
-    @ManyToMany
-    @JoinTable(
-        name = "blog_tags",
-        joinColumns = @JoinColumn(name = "blog_id"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
     private List<Tag> tags;
-
-    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comment> comments;
 
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
+    
+    @TableField(fill = FieldFill.UPDATE)
     private LocalDateTime updatedAt;
+    
     private LocalDateTime publishedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

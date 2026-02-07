@@ -1,9 +1,10 @@
 package com.blog.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.blog.dao.CommentDao;
 import com.blog.entity.Comment;
 import com.blog.entity.User;
-import com.blog.repository.CommentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,16 +12,20 @@ import java.util.List;
 @Service
 public class CommentService {
 
-    @Autowired
-    private CommentRepository commentRepository;
+    @Resource
+    private CommentDao commentDao;
 
     public Comment create(Comment comment, User user) {
         comment.setUser(user);
-        return commentRepository.save(comment);
+        commentDao.save(comment);
+        return comment;
     }
 
     public Comment update(Long id, Comment comment, User user) {
-        Comment existingComment = commentRepository.findById(id).orElseThrow(() -> new RuntimeException("Comment not found"));
+        Comment existingComment = commentDao.getById(id);
+        if (existingComment == null) {
+            throw new RuntimeException("Comment not found");
+        }
         if (!existingComment.getUser().getId().equals(user.getId()) && !user.getRole().equals("ADMIN")) {
             throw new RuntimeException("You don't have permission to update this comment");
         }
@@ -28,26 +33,40 @@ public class CommentService {
         comment.setUser(user);
         comment.setBlog(existingComment.getBlog());
         comment.setCreatedAt(existingComment.getCreatedAt());
-        return commentRepository.save(comment);
+        commentDao.removeById(comment);
+        return comment;
     }
 
     public void delete(Long id, User user) {
-        Comment comment = commentRepository.findById(id).orElseThrow(() -> new RuntimeException("Comment not found"));
+        Comment comment = commentDao.getById(id);
+        if (comment == null) {
+            throw new RuntimeException("Comment not found");
+        }
         if (!comment.getUser().getId().equals(user.getId()) && !user.getRole().equals("ADMIN")) {
             throw new RuntimeException("You don't have permission to delete this comment");
         }
-        commentRepository.deleteById(id);
+        commentDao.removeById(id);
     }
 
     public List<Comment> findByBlogId(Long blogId) {
-        return commentRepository.findByBlogIdOrderByCreatedAtDesc(blogId);
+        QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("blog_id", blogId);
+        queryWrapper.orderByDesc("created_at");
+        return commentDao.list(queryWrapper);
     }
 
     public List<Comment> findByUserId(Long userId) {
-        return commentRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.orderByDesc("created_at");
+        return commentDao.list(queryWrapper);
     }
 
     public Comment findById(Long id) {
-        return commentRepository.findById(id).orElseThrow(() -> new RuntimeException("Comment not found"));
+        Comment comment = commentDao.getById(id);
+        if (comment == null) {
+            throw new RuntimeException("Comment not found");
+        }
+        return comment;
     }
 }

@@ -70,9 +70,12 @@ export default {
     async fetchBlogs() {
       try {
         const response = await axios.get('http://localhost:8080/api/blogs')
-        this.blogs = response.data
+        // 处理Page对象响应
+        this.blogs = response.data.content || response.data
+        console.log('Fetched blogs:', this.blogs)
       } catch (error) {
         console.error('Error fetching blogs:', error)
+        this.loading = false
       } finally {
         this.loading = false
       }

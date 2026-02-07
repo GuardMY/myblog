@@ -14,7 +14,7 @@
           <span class="menu-icon">➕</span>
           <span>创建博客</span>
         </router-link>
-        <router-link to="/admin/users" class="menu-item">
+        <router-link v-if="isAdmin" to="/admin/users" class="menu-item">
           <span class="menu-icon">👥</span>
           <span>用户管理</span>
         </router-link>
@@ -39,6 +39,11 @@ export default {
   data() {
     return {
       pageTitle: '后台管理'
+    }
+  },
+  computed: {
+    isAdmin() {
+      return localStorage.getItem('userRole') === 'ADMIN'
     }
   },
   watch: {

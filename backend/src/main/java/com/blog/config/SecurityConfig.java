@@ -38,18 +38,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .cors(Customizer.withDefaults()) // 启用CORS
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/api/auth/**") // 只对认证路径禁用CSRF
             )
             .authorizeRequests(authorize -> authorize
-                .requestMatchers("/api/auth/**", "/api/blogs/**", "/api/comments/**", "/api/categories/**", "/api/tags/**").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/blogs/**", "/api/comments/**", "/api/categories/**", "/api/tags/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/api/users/me").authenticated()
+                .requestMatchers("/api/users/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
+            // 移除formLogin配置，使用自定义的RESTful登录接口
             .formLogin(form -> form
-                .loginPage("/api/auth/login")
-                .permitAll()
+                .disable()
             )
             .logout(logout -> logout
                 .permitAll()

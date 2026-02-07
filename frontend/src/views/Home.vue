@@ -22,7 +22,18 @@
         <p>搜索结果: {{ searchKeyword }}</p>
       </div>
 
-      <div class="blog-list">
+      <!-- 加载状态 -->
+      <div v-if="loading" class="loading-state">
+        <p>加载中...</p>
+      </div>
+
+      <!-- 错误提示 -->
+      <div v-if="error" class="error-state">
+        <p>{{ error }}</p>
+        <button @click="fetchBlogs" class="retry-btn">重试</button>
+      </div>
+
+      <div v-if="!loading && !error" class="blog-list">
         <div v-for="blog in blogs" :key="blog.id" class="blog-item">
           <div v-if="blog.featuredImage" class="blog-image">
             <img :src="blog.featuredImage" :alt="blog.title">
@@ -48,12 +59,12 @@
         </div>
       </div>
 
-      <div v-if="blogs.length === 0" class="empty-state">
+      <div v-if="!loading && !error && blogs.length === 0" class="empty-state">
         <p>{{ isSearching ? '没有找到相关博客' : '暂无博客文章' }}</p>
       </div>
 
       <!-- 分页控件 -->
-      <div v-if="totalPages > 1" class="pagination">
+      <div v-if="!loading && !error && totalPages > 1" class="pagination">
         <button @click="changePage(currentPage - 1)" :disabled="currentPage === 0" class="page-btn">
           上一页
         </button>
@@ -82,7 +93,9 @@ export default {
       totalElements: 0,
       pageSize: 10,
       searchKeyword: '',
-      isSearching: false
+      isSearching: false,
+      loading: false,
+      error: null
     }
   },
   mounted() {
@@ -90,12 +103,16 @@ export default {
   },
   methods: {
     async fetchBlogs(page = 0, keyword = '') {
+      this.loading = true
+      this.error = null
       try {
         let url = `http://localhost:8080/api/blogs?page=${page}&size=${this.pageSize}`
         if (keyword) {
           url = `http://localhost:8080/api/blogs/search?keyword=${encodeURIComponent(keyword)}`
         }
+        console.log('Fetching blogs from:', url)
         const response = await axios.get(url)
+        console.log('Response data:', response.data)
         this.blogs = response.data.content || response.data
         if (response.data.number !== undefined) {
           this.currentPage = response.data.number
@@ -109,6 +126,10 @@ export default {
         }
       } catch (error) {
         console.error('Error fetching blogs:', error)
+        this.error = '获取博客失败，请稍后重试'
+        this.blogs = []
+      } finally {
+        this.loading = false
       }
     },
     changePage(page) {
@@ -395,6 +416,61 @@ export default {
   border: 1px solid #dee2e6;
 }
 
+/* 加载状态样式 */
+.loading-state {
+  text-align: center;
+  padding: 6rem 2rem;
+  color: #666;
+}
+
+.loading-state p {
+  font-size: 1.2rem;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 错误状态样式 */
+.error-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #dc3545;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  margin: 2rem 0;
+}
+
+.error-state p {
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.retry-btn {
+  padding: 0.6rem 1.5rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.retry-btn:hover {
+  background-color: #c82333;
+}
+
 @media (max-width: 768px) {
   .search-form {
     flex-direction: column;
@@ -414,6 +490,11 @@ export default {
   .blog-category {
     margin-left: 0;
     margin-top: 0.5rem;
+  }
+  
+  .loading-state,
+  .error-state {
+    padding: 3rem 1rem;
   }
 }
 </style>
